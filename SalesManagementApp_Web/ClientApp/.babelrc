@@ -1,0 +1,11 @@
+{
+
+  "plugins": [
+    [
+      "relay", {
+        "schema": "./schema/schema.graphql"
+      }
+    ],
+    "transform-runtime"
+  ]
+}

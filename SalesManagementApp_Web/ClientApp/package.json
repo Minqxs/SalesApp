@@ -1,8 +1,12 @@
 {
-  "name": "clientapp",
+  "name": "ClientApp",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/material": "^6.1.4",
+    "@mui/x-date-pickers": "^7.21.0",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -10,9 +14,14 @@
     "@types/node": "^16.18.114",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.1",
+    "date-fns": "^4.1.0",
+    "dayjs": "^1.11.13",
+    "graphql": "^16.9.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-relay": "^18.1.0",
     "react-scripts": "5.0.1",
+    "relay-runtime": "^18.1.0",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
   },
@@ -20,7 +29,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "us": "get-graphql-schema http://localhost:5095/graphql > ./schema/schema.gql",
+    "relay": "relay-compiler --watch"
   },
   "eslintConfig": {
     "extends": [
@@ -39,5 +50,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.25.8",
+    "@babel/preset-env": "^7.25.8",
+    "@babel/preset-react": "^7.25.7",
+    "@types/react-relay": "^16.0.6",
+    "babel-loader": "^9.2.1",
+    "babel-plugin-relay": "^18.1.0",
+    "react-app-rewired": "^2.2.1",
+    "relay-compiler": "^18.1.0"
   }
 }
