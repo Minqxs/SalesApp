@@ -9,11 +9,13 @@ public class ApiRetrieverService
 {
     private readonly HttpClient _httpClient;
     private readonly AppDbContextService _dbContextService;
+    private readonly ProductsRetrieverService _productsRetrieverService;
 
-    public ApiRetrieverService(HttpClient httpClient, AppDbContextService dbContextService)
+    public ApiRetrieverService(HttpClient httpClient, AppDbContextService dbContextService, ProductsRetrieverService productsRetrieverService)
     {
         _httpClient = httpClient;
         _dbContextService = dbContextService;
+        _productsRetrieverService = productsRetrieverService;
     }
 
     public async Task<List<JsonProduct>> GetProductsAsync()
@@ -31,11 +33,11 @@ public class ApiRetrieverService
     }
 
 
-    public async Task<List<JsonProductSale>> GetProductSaleAsync()
+    public async Task<List<JsonProductSale>> GetProductSaleAsync(int productId)
     {
         var response =
             await _httpClient.GetAsync(
-                "https://singularsystems-tech-assessment-sales-api2.azurewebsites.net/product-sales");
+                $"https://singularsystems-tech-assessment-sales-api2.azurewebsites.net/product-sales?Id={productId}");
 
         if (response.IsSuccessStatusCode)
         {
@@ -51,7 +53,7 @@ public class ApiRetrieverService
         var dbContext = this._dbContextService.CreateAndVerifyContext();
         var jsonProducts = await this.GetProductsAsync();
 
-        var existingProducts = await dbContext.Products.ToListAsync();
+        var existingProducts = this._productsRetrieverService.GetProducts(dbContext);
 
         var newProducts = new List<Product>();
         foreach (var jsonProduct in jsonProducts)
@@ -86,23 +88,28 @@ public class ApiRetrieverService
     public async Task<List<Sale>> MapAndSaveProductSales()
     {
         var dbContext = this._dbContextService.CreateAndVerifyContext();
-        var jsonProducts = await this.GetProductSaleAsync();
-        var productGroupedSales = jsonProducts.GroupBy(p => p.SaleId);
-        var sales = await productGroupedSales.Select(async group =>
+        var products =await this._productsRetrieverService.GetProducts(dbContext).ToListAsync();
+        List<Sale> salesList = new List<Sale>();
+        foreach (var product in products)
         {
-            var productSale = group.First();
-            var products = await dbContext.Products.Where(p => p.Id == productSale.ProductId).ToListAsync();
-            return new Sale()
+            var jsonProducts = await this.GetProductSaleAsync(product.Id);
+            var productGroupedSales = jsonProducts.GroupBy(p => p.SaleId);
+            var sales = await productGroupedSales.Select(async group =>
             {
-                Id = productSale.SaleId,
-                SaleDate = DateTimeOffset.Parse(productSale.SaleDate),
-                Products = products
-            };
-        }).ToListFromTasks();
-        await dbContext.AddRangeAsync(sales);
+                var productSale = group.First();
+                var saleProducts = products.Where(p => p.Id == productSale.ProductId).ToList();
+                return new Sale()
+                {
+                    Id = productSale.SaleId,
+                    SaleDate = DateTimeOffset.Parse(productSale.SaleDate),
+                    Products = new List<Product>(saleProducts)
+                };
+            }).ToListFromTasks();
+            salesList.AddRange(sales);
+        }
+        await dbContext.Set<Sale>().AddRangeAsync(salesList);
         await dbContext.SaveChangesAsync();
-
-        return sales;
+        return salesList;
     }
 
     public record JsonProduct(int Id, string Description, double SalePrice, string Image);

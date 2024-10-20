@@ -11,9 +11,13 @@ builder.Services.AddDbContextFactory<AppDbContext>(options =>
     options.UseInMemoryDatabase("InMemoryDb");
 });
 builder.Services.AddScoped<AppDbContextService>();
+builder.Services.AddDbContext<AppDbContext>();
 builder.Services.AddHttpClient<ApiRetrieverService>();
+builder.Services.AddSingleton<SalesRetrieverService>();
+builder.Services.AddSingleton<ProductsRetrieverService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ISaleService, SaleService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: AllowSpecificOrigins,

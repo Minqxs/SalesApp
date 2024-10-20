@@ -10,4 +10,6 @@ public class Sale
     public double SalePrice => this.Products.Sum(p => p.Price);
 
     public double Quantity => this.Products.Count;
+
+    public bool IsDeleted { get; set; }
 }

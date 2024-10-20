@@ -1,4 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+using HotChocolate.Types.Relay;
+using SalesManagementApp_Core.DataAccess;
 using SalesManagementApp_Core.Entities;
 using SalesManagementApp_Core.Interfaces;
 
@@ -6,32 +7,64 @@ namespace SalesManagementApp_Core.Services;
 
 public class SaleService : ISaleService
 {
-    private readonly AppDbContextService dbContextService;
+    private readonly ProductsRetrieverService productsRetrieverService;
+    private readonly SalesRetrieverService salesRetrieverService;
 
-    public SaleService(AppDbContextService _dbContext)
+    public SaleService(ProductsRetrieverService _productsRetrieverService, SalesRetrieverService salesRetrieverService)
     {
-        dbContextService = _dbContext;
-    }
-    public IQueryable<Sale> GetSales()
-    {
-        var context = this.dbContextService.CreateAndVerifyContext();
-        return context.Sales
-            .Include(p => p.Products);
+        productsRetrieverService = _productsRetrieverService;
+        this.salesRetrieverService = salesRetrieverService;
     }
 
-    public Task<Sale> CreateSale()
+    public async Task<Sale> CreateSale(AppDbContext dbContext, CreateSaleInput createSaleInput )
     {
-        throw new NotImplementedException();
+        List<Product> productInSale = new List<Product>();
+
+        foreach (var productId in createSaleInput.ProductIds)
+        {
+            var product = await productsRetrieverService.GetProductById(dbContext, productId);
+            productInSale.Add(product);
+        }
+
+        var sale = new Sale()
+        {
+            Products = productInSale,
+            SaleDate = DateTimeOffset.Now,
+        };
+        await dbContext.Set<Sale>().AddAsync(sale);
+        await dbContext.SaveChangesAsync();
+        return sale;
+
     }
 
-    public Task<Sale> EditSale()
+    public async Task<Sale> EditSale(AppDbContext dbContext, EditSaleInput editSaleInput )
     {
-        throw new NotImplementedException();
+        var sale = await salesRetrieverService.GetSalesById(dbContext, editSaleInput.SaleId);
+        List<Product> productInSale = new List<Product>();
+
+        foreach (var productId in editSaleInput.ProductIds)
+        {
+            var product = await productsRetrieverService.GetProductById(dbContext, productId);
+            productInSale.Add(product);
+        }
+
+        sale.Products = productInSale;
+        dbContext.Set<Sale>().Update(sale);
+        await dbContext.SaveChangesAsync();
+        return sale;
     }
 
-    public Task<Sale> DeleteSale()
+    public async Task<Sale> DeleteSale(AppDbContext dbContext, DeleteSaleInput deleteSaleInput )
     {
-        throw new NotImplementedException();
+        var sale = await salesRetrieverService.GetSalesById(dbContext, deleteSaleInput.SaleId);
+        sale.IsDeleted = true;
+        dbContext.Set<Sale>().Update(sale);
+        await dbContext.SaveChangesAsync();
+        return sale;
     }
+
+    public record CreateSaleInput([property:ID<Product>] List<int> ProductIds);
+    public record EditSaleInput([property:ID<Sale>] int SaleId ,[property:ID<Product>] List<int> ProductIds);
+    public record DeleteSaleInput([property:ID<Sale>] int SaleId);
 
 }

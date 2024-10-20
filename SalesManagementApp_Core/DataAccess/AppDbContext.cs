@@ -14,4 +14,13 @@ public class AppDbContext : DbContext
     {
     }
 
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        builder.Entity<Sale>()
+            .HasMany(s => s.Products)
+            .WithMany(s => s.Sales);
+
+        base.OnModelCreating(builder);
+
+    }
 }

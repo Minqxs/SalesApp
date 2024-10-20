@@ -11,4 +11,6 @@ public class Product
     public string? Image { get; set; }
 
     public bool IsDeleted { get; set; }
+
+    public List<Sale> Sales { get; set; } = new List<Sale>();
 }
