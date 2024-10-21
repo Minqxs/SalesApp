@@ -11,7 +11,7 @@ public class ProductsRetrieverService
         return dbContext.Products;
     }
 
-    public async Task<Product> GetProductById(AppDbContext dbContext, int productId)
+    public async Task<Product> GetProductById(AppDbContext dbContext, string productId)
     {
         return await dbContext.Products.FirstOrDefaultAsync(p => p.Id == productId) ??
                throw new ArgumentException("Product was not found");

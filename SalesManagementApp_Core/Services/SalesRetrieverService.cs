@@ -12,7 +12,7 @@ public class SalesRetrieverService
             .Include(p => p.Products);
     }
 
-    public async Task<Sale> GetSalesById(AppDbContext dbContext, int saleId)
+    public async Task<Sale> GetSalesById(AppDbContext dbContext, string saleId)
     {
         return await dbContext.Sales
             .Include(p => p.Products)

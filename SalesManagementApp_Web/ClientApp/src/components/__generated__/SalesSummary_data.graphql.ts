@@ -1,5 +1,5 @@
 /**
- * @generated SignedSource<<77051114ba404d4f7266e6a5e79845ad>>
+ * @generated SignedSource<<466fe5ba54255a7baf5fa19ac4369f02>>
  * @lightSyntaxTransform
  * @nogrep
  */
@@ -15,10 +15,10 @@ export type SalesSummary_data$data = {
     readonly __id: string;
     readonly edges: ReadonlyArray<{
       readonly node: {
-        readonly id: number;
+        readonly id: string;
         readonly products: ReadonlyArray<{
           readonly description: string;
-          readonly id: number;
+          readonly id: string;
         }>;
         readonly quantity: number;
         readonly saleDate: any;

@@ -80,7 +80,7 @@ type PageInfo {
 }
 
 type Product {
-  id: Int!
+  id: String!
   description: String!
   price: Float!
   image: String
@@ -150,7 +150,7 @@ type Query {
 }
 
 type Sale {
-  id: Int!
+  id: String!
   products: [Product!]!
   saleDate: DateTime!
   salePrice: Float!

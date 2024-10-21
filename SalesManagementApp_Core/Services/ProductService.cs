@@ -52,6 +52,6 @@ public class ProductService : IProductService
     }
 
     public record CreateProductInput(string Description, double Price, string? Image);
-    public record EditProductInput([property:ID] int ProductId ,string Description, double Price, string? Image);
-    public record DeleteProductInput([property:ID] int ProductId);
+    public record EditProductInput([property:ID] string ProductId ,string Description, double Price, string? Image);
+    public record DeleteProductInput([property:ID] string ProductId);
 }

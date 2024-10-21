@@ -5,7 +5,6 @@ using SalesManagementApp_Core.Interfaces;
 using SalesManagementApp_Core.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-var AllowSpecificOrigins = "_allowSpecificOrigins";
 builder.Services.AddDbContextFactory<AppDbContext>(options =>
 {
     options.UseInMemoryDatabase("InMemoryDb");
@@ -20,13 +19,11 @@ builder.Services.AddScoped<ISaleService, SaleService>();
 
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: AllowSpecificOrigins,
-        policy =>
-        {
-            policy.AllowAnyOrigin()
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
+    options.AddPolicy("CorsPolicy",
+        policy => policy.WithOrigins("http://localhost:3000")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 builder.Services.AddGraphQLServer()
@@ -34,7 +31,7 @@ builder.Services.AddGraphQLServer()
     .AddFiltering();
 
 var app = builder.Build();
-app.UseCors(AllowSpecificOrigins);
+app.UseCors("CorsPolicy");
 app.MapGraphQL();
 using (var scope = app.Services.CreateScope())
 {

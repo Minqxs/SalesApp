@@ -63,8 +63,8 @@ public class SaleService : ISaleService
         return sale;
     }
 
-    public record CreateSaleInput([property:ID<Product>] List<int> ProductIds);
-    public record EditSaleInput([property:ID<Sale>] int SaleId ,[property:ID<Product>] List<int> ProductIds);
-    public record DeleteSaleInput([property:ID<Sale>] int SaleId);
+    public record CreateSaleInput([property:ID<Product>] List<string> ProductIds);
+    public record EditSaleInput([property:ID<Sale>] string SaleId ,[property:ID<Product>] List<string> ProductIds);
+    public record DeleteSaleInput([property:ID<Sale>] string SaleId);
 
 }

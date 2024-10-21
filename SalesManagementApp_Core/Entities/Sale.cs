@@ -2,7 +2,7 @@ namespace SalesManagementApp_Core.Entities;
 
 public class Sale
 {
-    public int Id { get; set; }
+    public string Id { get; set; }
     public List<Product> Products { get; set; } = new List<Product>();
 
     public DateTimeOffset SaleDate { get; set; }

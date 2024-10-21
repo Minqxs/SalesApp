@@ -33,7 +33,7 @@ public class ApiRetrieverService
     }
 
 
-    public async Task<List<JsonProductSale>> GetProductSaleAsync(int productId)
+    public async Task<List<JsonProductSale>> GetProductSaleAsync(string productId)
     {
         var response =
             await _httpClient.GetAsync(
@@ -112,8 +112,8 @@ public class ApiRetrieverService
         return salesList;
     }
 
-    public record JsonProduct(int Id, string Description, double SalePrice, string Image);
+    public record JsonProduct(string Id, string Description, double SalePrice, string Image);
 
-    public record JsonProductSale(int SaleId, int ProductId,string SaleDate);
+    public record JsonProductSale(string SaleId, string ProductId,string SaleDate);
 
 }
