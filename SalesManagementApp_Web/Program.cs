@@ -28,6 +28,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddGraphQLServer()
     .AddQueryType<Query>()
+    .AddMutationType<Mutations>()
     .AddFiltering();
 
 var app = builder.Build();

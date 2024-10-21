@@ -12,9 +12,11 @@ public class Query
     [UsePaging(IncludeTotalCount = true)]
     public IQueryable<Product> GetProducts(
         [Service] ProductsRetrieverService productRetrieverService,
-        AppDbContext dbContext)
+        AppDbContext dbContext,
+        string? productName)
     {
-        return productRetrieverService.GetProducts(dbContext);
+        return productRetrieverService.GetProducts(dbContext).Where(p =>
+            (string.IsNullOrEmpty(productName) || p.Description.ToLower().Contains(productName.ToLower())));
     }
 
     [UsePaging(IncludeTotalCount = true)]
@@ -30,7 +32,7 @@ public class Query
                 (!startDate.HasValue || sale.SaleDate >= startDate.Value) &&
                 (!endDate.HasValue || sale.SaleDate <= endDate.Value) &&
                 (string.IsNullOrEmpty(productName) ||
-                 sale.Products.Any(product => product.Description == productName)));
+                 sale.Products.Any(product => product.Description.ToLower().Contains(productName.ToLower()))));
         return salesQuery;
     }
 }

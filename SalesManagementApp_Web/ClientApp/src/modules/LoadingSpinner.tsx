@@ -1,8 +1,7 @@
 import { Box, Grid2 } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import Dialog, { DialogProps } from '@mui/material/Dialog';
+import { DialogProps } from '@mui/material/Dialog';
 import Typography from '@mui/material/Typography';
-import React from 'react';
 
 interface Props {
     DialogProps?: Omit<DialogProps, 'open'>;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
     Container,
     TextField,
@@ -11,9 +11,10 @@ import {
     TableSortLabel,
     Paper,
     Typography,
-    Grid,
     TableFooter,
     TablePagination,
+    Grid2,
+    debounce,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { graphql, useLazyLoadQuery, usePaginationFragment } from 'react-relay';
@@ -76,6 +77,10 @@ function InnerSalesSummary({ queryRef }: Props) {
     >(fragment, queryRef);
     // State for managing pagination
     const [page, setPage] = useState(1);
+    const [startDate, setStartDate] = useState<Date | null>(null);
+    const [endDate, setEndDate] = useState<Date | null>(null);
+    const [productName, setProductName] = useState<string>('');
+    const [isLoading, startTransition] = React.useTransition();
     const rowsPerPage = 50;
     const sales = data.sales?.edges?.slice((page - 1) * 50, page * 50);;
 
@@ -87,50 +92,109 @@ function InnerSalesSummary({ queryRef }: Props) {
         setPage(newPage);
 
         if (direction === 'next' && hasNext) {
-            loadNext(rowsPerPage); // Use Relay's built-in loadNext function
+            loadNext(rowsPerPage);
         } else if (direction === 'previous' && hasPrevious) {
-            loadPrevious(rowsPerPage); // Use Relay's built-in loadPrevious function
+            loadPrevious(rowsPerPage);
         }
     };
 
+    const handleRefetch = (newStartDate: Date | null, newOldDate: Date | null, filter: string | null) => {
+        startTransition(() => {
+            refetch({
+                startDate: newStartDate?.toISOString(),
+                endDate: newOldDate?.toISOString(),
+                productName: filter
+            },
+                { fetchPolicy: 'network-only' },);
+        });
+    };
+
+    const handleStartDate = (value: Date | null) => {
+        setStartDate(value);
+        handleRefetch(
+            value,
+            endDate,
+            null
+        );
+    };
+
+    const handleEndDate = (value: Date | null) => {
+        setEndDate(value);
+        handleRefetch(
+            startDate,
+            value,
+            null
+        );
+    };
+
+    const refetchWithDebounce = useMemo(
+        () =>
+            debounce((newStartDate, newEndDate, newProductName) => {
+                refetch({
+                    startDate: newStartDate?.toISOString(),
+                    endDate: newEndDate?.toISOString(),
+                    productName: newProductName,
+                });
+            }, 550),
+        [refetch]
+    );
+
+    const handleProductNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const value = event.target.value;
+        setProductName(value);
+        refetchWithDebounce(startDate, endDate, value);
+    };
 
     return (
         <Container maxWidth="lg" style={{ marginTop: '20px' }}>
             <Typography variant="h4" align="center" gutterBottom>
                 Summary Screen
             </Typography>
-            <Grid container alignItems={'center'}>
-                <Grid container spacing={2} justifyContent="space-between">
-                    <Grid item xs={12} sm={6} md={4}>
-                        <DatePicker label="Start Date Range" />
-                    </Grid>
-                    <Grid item xs={12} sm={6} md={4}>
-                        <DatePicker label="End Date Range" />
-                    </Grid>
-                    <Grid item xs={12} sm={12} md={4}>
-                        <TextField
-                            label="Filter by description"
-                            variant="outlined"
-                            fullWidth
-                            margin="normal"
+            <Grid2 container alignItems={'center'} columnGap={2} size={12} >
+                <Grid2 container spacing={2} size={7}>
+                    <Grid2 size={5}>
+                        <DatePicker
+                            label="Start Date Range"
+                            value={startDate}
+                            onChange={(value) => {
+                                handleStartDate(value);
+                            }}
                         />
-                    </Grid>
-                </Grid>
-            </Grid>
+                    </Grid2>
+                    <Grid2 size={5}>
+                        <DatePicker
+                            label="End Date Range"
+                            value={endDate}
+                            onChange={(value) => { handleEndDate(value); }}
+                        />
+                    </Grid2>
+                </Grid2>
+                <Grid2 size={3} display='flex' justifyContent={'flex-end'}>
+                    <TextField
+                        label="Filter by description"
+                        variant="outlined"
+                        fullWidth
+                        value={productName}
+                        onChange={handleProductNameChange}
+                    />
+                </Grid2>
+
+            </Grid2>
+
 
             <TableContainer component={Paper} sx={{ width: '100%', marginTop: '20px' }}>
                 <Table sx={{ width: '100%' }}>
                     <TableHead>
                         <TableRow>
-                            <TableCell>
-                                <TableSortLabel>
-                                    ID
-                                </TableSortLabel>
-                            </TableCell>
                             <TableCell>Description</TableCell>
                             <TableCell>
                                 <TableSortLabel>
                                     Price
+                                </TableSortLabel>
+                            </TableCell>
+                            <TableCell>
+                                <TableSortLabel>
+                                    Items
                                 </TableSortLabel>
                             </TableCell>
                             <TableCell>
@@ -145,9 +209,9 @@ function InnerSalesSummary({ queryRef }: Props) {
                             const products = node.products.map((product) => product.description).join(', ');
                             return (
                                 <TableRow key={node.id}>
-                                    <TableCell>{node.id}</TableCell>
                                     <TableCell>{products}</TableCell>
                                     <TableCell>${node.salePrice}</TableCell>
+                                    <TableCell>{node.quantity}</TableCell>
                                     <TableCell>{node.saleDate}</TableCell>
                                 </TableRow>
                             );
@@ -158,7 +222,7 @@ function InnerSalesSummary({ queryRef }: Props) {
                             <TablePagination
                                 rowsPerPageOptions={[50]}
                                 colSpan={4}
-                                count={data.sales?.totalCount || 0}  // Total count of records for pagination
+                                count={data.sales?.totalCount || 0}
                                 rowsPerPage={rowsPerPage}
                                 page={page}
                                 onPageChange={handleChangePage}

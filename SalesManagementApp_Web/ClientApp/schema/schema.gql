@@ -1,3 +1,8 @@
+schema {
+  query: Query
+  mutation: Mutations
+}
+
 """
 The purpose of the `cost` directive is to define a `weight` for GraphQL types,
 fields, and arguments. Static analysis can use these weights when calculating
@@ -57,8 +62,26 @@ directive @specifiedBy(
   url: String!
 ) on SCALAR
 
+input CreateProductInput {
+  description: String!
+  price: Float!
+  image: String
+}
+
 """The `DateTime` scalar represents an ISO-8601 compliant date time type."""
 scalar DateTime
+
+input EditProductInput {
+  productId: ID!
+  description: String!
+  price: Float!
+  image: String
+}
+
+type Mutations {
+  createProduct(input: CreateProductInput!): Product!
+  editProduct(input: EditProductInput!): Product!
+}
 
 """Information about pagination in a connection."""
 type PageInfo {
@@ -114,6 +137,8 @@ type ProductsEdge {
 
 type Query {
   products(
+    productName: String
+
     """Returns the first _n_ elements from the list."""
     first: Int
 
