@@ -85,6 +85,7 @@ function InnerProductPage({ queryRef }: Props) {
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [editProduct, isLoading] = useEditParcelPlan();
+    const [startTransition] = React.useTransition();
     const {
         data,
 
@@ -119,16 +120,14 @@ function InnerProductPage({ queryRef }: Props) {
                 },
             },
             onCompleted: () => {
-                startTransition(() => {
-                    refetch({}, { fetchPolicy: 'network-only' });
-                    alert('Product updated successfully');
-                });
+                alert('Product updated successfully');
+                handleDialogClose();
             },
             onError: (e) => {
                 alert(e);
             },
         })
-        handleDialogClose();
+
     };
 
 

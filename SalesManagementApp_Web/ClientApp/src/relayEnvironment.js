@@ -12,6 +12,11 @@ const fetchGraphQL = async (operation, variables) => {
             variables,
         }),
     });
+    if (!response.ok) {
+    const errorResponse = await response.text();
+    console.error("Error response:", errorResponse);
+    throw new Error(`Network error: ${response.status} ${response.statusText}`);
+}
     return await response.json();
 };
 
