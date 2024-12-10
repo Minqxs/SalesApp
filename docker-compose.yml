@@ -1,6 +1,6 @@
 ﻿services:
   webapplication1:
-    image: webapplication1
+    image: salesmanagementapp_web
     build:
       context: .
-      dockerfile: WebApplication1/Dockerfile
+      dockerfile: SalesManagementApp_Web/Dockerfile

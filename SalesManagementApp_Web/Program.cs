@@ -27,8 +27,11 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddGraphQLServer()
+    // .RegisterDbContext<AppDbContext>(DbContextKind.Synchronized)
     .AddQueryType<Query>()
     .AddMutationType<Mutations>()
+    .AddMutationConventions(applyToAllMutations: false)
+    .AddDiagnosticEventListener<DiagnosticEventListener>()
     .AddFiltering();
 
 var app = builder.Build();

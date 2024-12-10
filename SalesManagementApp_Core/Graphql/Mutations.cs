@@ -1,7 +1,7 @@
 using HotChocolate;
-using HotChocolate.Types;
 using SalesManagementApp_Core.DataAccess;
 using SalesManagementApp_Core.Entities;
+using SalesManagementApp_Core.Interfaces;
 using SalesManagementApp_Core.Services;
 
 namespace SalesManagementApp_Core.Graphql;
@@ -9,7 +9,7 @@ namespace SalesManagementApp_Core.Graphql;
 public class Mutations
 {
     public async Task<Product> CreateProduct(
-        [Service] ProductService productService,
+        [Service] IProductService productService,
         AppDbContext dbContext,
         ProductService.CreateProductInput input)
     {
@@ -18,7 +18,7 @@ public class Mutations
     }
 
     public async Task<Product> EditProduct(
-        [Service] ProductService productService,
+        [Service] IProductService productService,
         AppDbContext dbContext,
         ProductService.EditProductInput input)
     {

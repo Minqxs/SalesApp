@@ -11,7 +11,7 @@ export const useEditParcelPlan = () =>
             description
             price
             image
-        ...ProductPage_Product
+           
       }
     }
   `);
